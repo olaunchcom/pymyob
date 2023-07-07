@@ -17,10 +17,10 @@ from .exceptions import (
 
 
 class Manager:
-    def __init__(self, name, credentials, company_id=None, endpoints=[], raw_endpoints=[]):
+    def __init__(self, name, credentials, baseurl, company_id=None, endpoints=[], raw_endpoints=[]):
         self.credentials = credentials
         self.name = '_'.join(p for p in name.rstrip('/').split('/') if '[' not in p)
-        self.base_url = MYOB_BASE_URL
+        self.base_url = baseurl
         if company_id is not None:
             self.base_url += company_id + '/'
         if name:
