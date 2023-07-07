@@ -17,6 +17,8 @@ ENDPOINTS = {
             (CRUD, 'SpendMoneyTxn/', 'spend money transaction'),
             (CRUD, 'ReceiveMoneyTxn/', 'receive money transaction'),
             (CRUD, 'TransferMoneyTxn/', 'transfer money transaction'),
+            (CRUD, 'BankAccount/', 'bank accounts'),
+            (CRUD, 'Statement/', 'bank statements'),
         ],
     },
     'Contact/': {
@@ -37,12 +39,33 @@ ENDPOINTS = {
             (DELETE, '', 'sale customer payment'),
         ]
     },
+    'Sale/CreditRefund/': {
+        'name': 'credit_refunds',
+        'methods': [
+            (ALL, '', 'credit notes refunded to customers'),
+            (GET, '', 'credit notes refunded to customers'),
+            (POST, '', 'credit notes refunded to customers'),
+            (DELETE, '', 'credit notes refunded to customers'),
+        ]
+    },
+    'Sale/CreditSettlement/': {
+        'name': 'credit_settlements',
+        'methods': [
+            (ALL, '', 'settled customer credits'),
+            (GET, '', 'settled customer credits'),
+            (POST, '', 'settled customer credits'),
+            (DELETE, '', 'settled customer credits'),
+        ]
+    },
     'Sale/Invoice/': {
         'name': 'invoices',
         'methods': [
             (ALL, '', 'sale invoice type'),
             (CRUD, 'Item/', 'item type sale invoice'),
             (CRUD, 'Service/', 'service type sale invoice'),
+            (CRUD, 'Miscellaneous/', 'miscellaneous type sale invoice'),
+            (CRUD, 'Professional/', 'professional type sale invoice'),
+            (CRUD, 'TimeBilling/', 'timebilling type sale invoice'),
         ]
     },
     'Sale/Order/': {
@@ -70,6 +93,10 @@ ENDPOINTS = {
             (CRUD, 'Job/', 'job'),
             (ALL, 'JournalTransaction/', 'transaction journal'),
             (GET, 'JournalTransaction/', 'transaction journal'),
+            (CRUD, 'Currency/', 'currency'),  # TODO: Added
+            (ALL, 'GeneralJournal/', 'general journal transactions'),  # TODO: Added
+            (GET, 'AccountingProperties/', 'information on the financial year details'),  # TODO: Added
+            (GET, 'LinkedAccount/', 'account links and defaults'),  # TODO: Added
         ]
     },
     'Inventory/': {
@@ -97,6 +124,34 @@ ENDPOINTS = {
             (CRUD, 'Item/', 'item type purchase bill'),
             (CRUD, 'Service/', 'service type purchase bill'),
             (CRUD, 'Miscellaneous/', 'miscellaneous type purchase bill'),
+            (CRUD, 'Professional/', 'professional type purchase bill'),
+        ]
+    },
+    'Purchase/DebitRefund/': {
+        'name': 'debit_refunds',
+        'methods': [
+            (ALL, '', 'debit refunds paid from suppliers'),
+            (GET, '', 'debit refunds paid from suppliers'),
+            (POST, '', 'debit refunds paid from suppliers'),
+            (DELETE, '', 'debit refunds paid from suppliers'),
+        ]
+    },
+    'Purchase/DebitSettlement/': {
+        'name': 'debit_settlements',
+        'methods': [
+            (ALL, '', 'debit settlements'),
+            (GET, '', 'debit settlements'),
+            (POST, '', 'debit settlements'),
+            (DELETE, '', 'debit settlements'),
+        ]
+    },
+    'Purchase/SupplierPayment/': {
+        'name': 'supplier_payments',
+        'methods': [
+            (ALL, '', 'purchase supplier payment'),
+            (GET, '', 'purchase supplier payment'),
+            (POST, '', 'purchase supplier payment'),
+            (DELETE, '', 'purchase supplier payment'),
         ]
     },
     'Company/': {
@@ -105,6 +160,14 @@ ENDPOINTS = {
             (ALL, 'Preferences/', 'company data file preference')
         ]
     },
+    # https://github.com/uptick/pymyob/pull/76/files
+    'Report/': {
+        'name': 'reports',
+        'methods': [
+            (ALL, 'BalanceSheetSummary/?AsOfDate=[AsOfDate]&YearEndAdjust=[YearEndAdjust]&ReportingBasis=[ReportingBasis]', 'balance sheet summary'),
+            (ALL, 'ProfitAndLossSummary/?StartDate=[StartDate]&EndDate=[EndDate]&ReportingBasis=[ReportingBasis]&YearEndAdjust=[YearEndAdjust]', 'profit loss summary'),
+        ]
+    }
 }
 
 METHOD_MAPPING = {
