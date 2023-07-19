@@ -157,7 +157,8 @@ ENDPOINTS = {
     'Company/': {
         'name': 'company',
         'methods': [
-            (ALL, 'Preferences/', 'company data file preference')
+            (ALL, 'Preferences/', 'company data file preference'),
+            (GET, 'CustomList/', 'Returns CustomLists and their CustomListValues'),
         ]
     },
     # https://github.com/uptick/pymyob/pull/76/files
