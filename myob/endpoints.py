@@ -170,8 +170,15 @@ ENDPOINTS = {
         'methods': [
             (ALL, 'BalanceSheetSummary/?AsOfDate=[AsOfDate]&YearEndAdjust=[YearEndAdjust]&ReportingBasis=[ReportingBasis]', 'balance sheet summary'),
             (ALL, 'ProfitAndLossSummary/?StartDate=[StartDate]&EndDate=[EndDate]&ReportingBasis=[ReportingBasis]&YearEndAdjust=[YearEndAdjust]', 'profit loss summary'),
+            (ALL, 'TaxCodeSummary/?StartDate=[StartDate]&EndDate=[EndDate]&ReportingBasis=[ReportingBasis]&YearEndAdjust=[YearEndAdjust]', 'tax code summary'),
         ]
-    }
+    },
+    'Report/GST/': {
+        'name': 'reports_gst',
+        'methods': [
+            (ALL, 'NZGSTReport/?ReportingPeriod=[ReportingPeriod]&EndDate=[EndDate]&ReportingBasis=[ReportingBasis]&YearEndAdjust=[YearEndAdjust]', 'NZ GST report'),
+        ]
+    },
 }
 
 METHOD_MAPPING = {
