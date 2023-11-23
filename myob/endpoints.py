@@ -102,8 +102,6 @@ ENDPOINTS = {
             (ALL, "AccountRegister/", "account register"),
             (ALL, "AccountingProperties/", "accounting property setting"),
             (CRUD, "Currency/", "currency"),  # TODO: Added
-            (ALL, "GeneralJournal/", "general journal transactions"),  # TODO: Added
-            (GET, "AccountingProperties/", "information on the financial year details"),  # TODO: Added
             (GET, "LinkedAccount/", "account links and defaults"),  # TODO: Added
         ],
     },
