@@ -117,8 +117,11 @@ class Manager:
             elif response.status_code == 401:
                 raise MyobUnauthorized(response)
             elif response.status_code == 403:
-                if response.json()["Errors"][0]["Name"] == "RateLimitError":
+                data = response.json()
+                if 'Errors' in data and data['Errors'][0]['Name'] == 'RateLimitError':
                     raise MyobRateLimitExceeded(response)
+                elif data.get('ErrorCode') == 'AccessDenied':
+                    raise MyobUnauthorized(response)
                 raise MyobForbidden(response)
             elif response.status_code == 404:
                 raise MyobNotFound(response)
