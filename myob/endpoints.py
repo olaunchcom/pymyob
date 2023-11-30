@@ -90,6 +90,9 @@ ENDPOINTS = {
             (ALL, "", "sale quote type"),
             (CRUD, "Item/", "item type sale quote"),
             (CRUD, "Service/", "service type sale quote"),
+            (CRUD, "Professional/", "professional type sale order"),
+            (CRUD, "TimeBilling/", "timebilling type sale order"),
+            (CRUD, "Miscellaneous/", "miscellaneous type sale order"),
         ],
     },
     "GeneralLedger/": {
