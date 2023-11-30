@@ -79,6 +79,9 @@ ENDPOINTS = {
             (ALL, "", "sale order type"),
             (CRUD, "Item/", "item type sale order"),
             (CRUD, "Service/", "service type sale order"),
+            (CRUD, "Professional/", "professional type sale order"),
+            (CRUD, "TimeBilling/", "timebilling type sale order"),
+            (CRUD, "Miscellaneous/", "miscellaneous type sale order"),
         ],
     },
     "Sale/Quote/": {
@@ -149,6 +152,9 @@ ENDPOINTS = {
         "methods": [
             (ALL, "", "purchase order type"),
             (CRUD, "Item/", "item type purchase order"),
+            (CRUD, "Service/", "service type purchase order"),
+            (CRUD, "Professional/", "professional type purchase order"),
+            (CRUD, "Miscellaneous/", "miscellaneous type purchase order"),
         ],
     },
     "Purchase/SupplierPayment/": {
