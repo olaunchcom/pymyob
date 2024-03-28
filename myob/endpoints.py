@@ -178,6 +178,17 @@ ENDPOINTS = {
         ],
     },
 
+    "TimeBilling/Activity/": {
+        "name": "timebilling_activities",
+        "methods": [
+            (CRUD, "", "timebilling activity"),
+            (ALL, "", "timebilling activity"),
+            (GET, "", "timebilling activity"),
+            (POST, "", "timebilling activity"),
+            (DELETE, "", "timebilling activity"),
+        ],
+    },
+
     # https://github.com/uptick/pymyob/pull/76/files
     "Report/": {
         "name": "reports",
