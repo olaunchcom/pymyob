@@ -33,6 +33,7 @@ ENDPOINTS = {
             (CRUD, "EmployeePaymentDetails/", "employee payment card"),
             (CRUD, "EmployeeStandardPay/", "employee standard pay card"),
             (CRUD, "Supplier/", "supplier contact"),
+            (CRUD, "Personal/", "personal contact"),
         ],
     },
     "Sale/CustomerPayment/": {
