@@ -119,6 +119,7 @@ ENDPOINTS = {
             (ALL, "ItemPriceMatrix/", "inventory item price matrix"),
             (GET, "ItemPriceMatrix/", "inventory item price matrix"),
             (PUT, "ItemPriceMatrix/", "inventory item price matrix"),
+            (GET, "PriceLevelDetail/", "customised price level names from Custom List and Field Names."),
             (CRUD, "Location/", "inventory location"),
             (CRUD, "Adjustment/", "inventory adjustment"),
         ],
