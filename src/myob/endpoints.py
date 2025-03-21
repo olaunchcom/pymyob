@@ -1,15 +1,14 @@
+from .types import Method
 from .utils import pluralise
 
-ALL = "ALL"
-GET = "GET"  # this method expects a UID as a keyword
-POST = "POST"
-PUT = "PUT"
-DELETE = "DELETE"
-CRUD = (
-    "CRUD"  # shorthand for creating the ALL|GET|POST|PUT|DELETE endpoints in one swoop
-)
+ALL: Method = "ALL"
+GET: Method = "GET"  # this method expects a UID as a keyword
+POST: Method = "POST"
+PUT: Method = "PUT"
+DELETE: Method = "DELETE"
+CRUD = "CRUD"  # shorthand for creating the ALL|GET|POST|PUT|DELETE endpoints in one swoop
 
-METHOD_ORDER = [ALL, GET, POST, PUT, DELETE]
+METHOD_ORDER: list[Method] = [ALL, GET, POST, PUT, DELETE]
 
 ENDPOINTS = {
     "Banking/": {
@@ -211,20 +210,22 @@ ENDPOINTS = {
 METHOD_MAPPING = {
     ALL: {
         "endpoint": lambda base: base,
-        "hint": lambda name: "Return all %s for an AccountRight company file."
-        % pluralise(name),
+        "hint": lambda name: f"Return all {pluralise(name)} for an AccountRight company file.",
     },
     GET: {
         "endpoint": lambda base: base + "[uid]/",
-        "hint": lambda name: "Return selected %s." % name,
+        "hint": lambda name: f"Return selected {name}.",
     },
     PUT: {
         "endpoint": lambda base: base + "[uid]/",
-        "hint": lambda name: "Update selected %s." % name,
+        "hint": lambda name: f"Update selected {name}.",
     },
-    POST: {"endpoint": lambda base: base, "hint": lambda name: "Create new %s." % name},
+    POST: {
+        "endpoint": lambda base: base,
+        "hint": lambda name: f"Create new {name}.",
+    },
     DELETE: {
         "endpoint": lambda base: base + "[uid]/",
-        "hint": lambda name: "Delete selected %s." % name,
+        "hint": lambda name: f"Delete selected {name}.",
     },
 }

@@ -1,14 +1,18 @@
-class MyobException(Exception):
-    def __init__(self, response, msg=None):
+from requests import Response
+
+
+class MyobException(Exception):  # noqa: N818
+    def __init__(self, response: Response, msg: str | None = None) -> None:
         self.response = response
         try:
             self.errors = response.json()["Errors"]
             e = self.errors[0]
-            self.problem = "%s: %s %s" % (
+            name, message, details = (
                 e["Name"],
                 e["Message"] or "",
                 e["AdditionalDetails"],
             )
+            self.problem = f"{name}: {message} {details}"
         except Exception:
             self.errors = []
             self.problem = response.reason

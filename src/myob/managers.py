@@ -1,9 +1,11 @@
 import re
 import requests
 from datetime import date
+from typing import Any
 
 from .constants import DEFAULT_PAGE_SIZE, MYOB_BASE_URL
-from .endpoints import CRUD, METHOD_MAPPING, METHOD_ORDER
+from .credentials import PartnerCredentials
+from .endpoints import ALL, CRUD, GET, METHOD_MAPPING, METHOD_ORDER, POST, PUT, Method
 from .exceptions import (
     MyobBadRequest,
     MyobConflict,
@@ -15,12 +17,19 @@ from .exceptions import (
     MyobRateLimitExceeded,
     MyobUnauthorized,
 )
+from .types import MethodDetails
 
 
 class Manager:
     def __init__(
-        self, name, credentials, baseurl, company_id=None, endpoints=[], raw_endpoints=[]
-    ):
+        self,
+        name: str,
+        credentials: PartnerCredentials,
+        baseurl: str,
+        company_id: str | None = None,
+        endpoints: list = [],  # noqa: B006
+        raw_endpoints: list = [],  # noqa: B006
+    ) -> None:
         self.credentials = credentials
         self.name = "_".join(p for p in name.rstrip("/").split("/") if "[" not in p)
         self.base_url = baseurl
@@ -28,7 +37,7 @@ class Manager:
             self.base_url += company_id + "/"
         if name:
             self.base_url += name
-        self.method_details = {}
+        self.method_details: dict[str, MethodDetails] = {}
         self.company_id = company_id
 
         # Build ORM methods from given url endpoints.
@@ -50,27 +59,24 @@ class Manager:
         for method, endpoint, hint in raw_endpoints:
             self.build_method(method, endpoint, hint)
 
-    def build_method(self, method, endpoint, hint):
+    def build_method(self, method: Method, endpoint: str, hint: str) -> None:
         full_endpoint = self.base_url + endpoint
         url_keys = re.findall(r"\[([^\]]*)\]", full_endpoint)
         template = full_endpoint.replace("[", "{").replace("]", "}")
 
         required_kwargs = url_keys.copy()
-        if method in ("PUT", "POST"):
+        if method in (PUT, POST):
             required_kwargs.append("data")
 
-        def inner(*args, timeout=None, **kwargs):
+        def inner(*args: Any, timeout: int | None = None, **kwargs: Any) -> str | dict:
             if args:
-                raise AttributeError(
-                    "Unnamed args provided. Only keyword args accepted."
-                )
+                raise AttributeError("Unnamed args provided. Only keyword args accepted.")
 
             # Ensure all required url kwargs have been provided.
             missing_kwargs = set(required_kwargs) - set(kwargs.keys())
             if missing_kwargs:
                 raise KeyError(
-                    "Missing kwargs %s. Endpoint requires %s."
-                    % (list(missing_kwargs), required_kwargs)
+                    f"Missing kwargs {list(missing_kwargs)}. Endpoint requires {required_kwargs}."
                 )
 
             # Parse kwargs.
@@ -83,7 +89,7 @@ class Manager:
                     request_kwargs_raw[k] = v
 
             # Determine request method.
-            request_method = "GET" if method == "ALL" else method
+            request_method = GET if method == ALL else method
 
             # Build url.
             url = template.format(**url_kwargs)
@@ -92,15 +98,11 @@ class Manager:
             request_kwargs = self.build_request_kwargs(
                 request_method, data=kwargs.get("data"), **request_kwargs_raw
             )
-            response = requests.request(
-                request_method, url, timeout=timeout, **request_kwargs
-            )
+            response = requests.request(request_method, url, timeout=timeout, **request_kwargs)
 
             if response.status_code == 200:
                 # We don't want to be deserialising binary responses..
-                if not response.headers.get("content-type", "").startswith(
-                    "application/json"
-                ):
+                if not response.headers.get("content-type", "").startswith("application/json"):
                     return response.content
 
                 try:
@@ -135,27 +137,25 @@ class Manager:
                 raise MyobExceptionUnknown(response)
 
         # Build method name
-        method_name = "_".join(
-            p for p in endpoint.rstrip("/").split("/") if "[" not in p
-        ).lower()
+        method_name = "_".join(p for p in endpoint.rstrip("/").split("/") if "[" not in p).lower()
         # If it has no name, use method.
         if not method_name:
             method_name = method.lower()
         # If it already exists, prepend with method to disambiguate.
         elif hasattr(self, method_name):
-            method_name = "%s_%s" % (method.lower(), method_name)
-        self.method_details[method_name] = {
-            "kwargs": required_kwargs,
-            "hint": hint,
-        }
+            method_name = f"{method.lower()}_{method_name}"
+        self.method_details[method_name] = MethodDetails(
+            kwargs=required_kwargs,
+            hint=hint,
+        )
         setattr(self, method_name, inner)
 
-    def build_request_kwargs(self, method, data=None, **kwargs):
+    def build_request_kwargs(self, method: Method, data: dict | None = None, **kwargs: Any) -> dict:
         request_kwargs = {}
 
         # Build headers.
         request_kwargs["headers"] = {
-            "Authorization": "Bearer %s" % self.credentials.oauth_token,
+            "Authorization": f"Bearer {self.credentials.oauth_token}",
             "x-myobapi-key": self.credentials.consumer_key,
             "x-myobapi-version": "v2",
         }
@@ -164,9 +164,7 @@ class Manager:
                 # Try to look up credentials for the companyfile if they've been set up. Else,
                 # pass through silently, as the user is likely to have been set up with SSO,
                 # in which case the credentials are not required.
-                companyfile_credentials = self.credentials.companyfile_credentials[
-                    self.company_id
-                ]
+                companyfile_credentials = self.credentials.companyfile_credentials[self.company_id]
                 request_kwargs["headers"].update(
                     {
                         "x-myobapi-cftoken": companyfile_credentials,
@@ -182,12 +180,12 @@ class Manager:
         request_kwargs["params"] = {}
         filters = []
 
-        def build_value(value):
+        def build_value(value: Any) -> str:
             if issubclass(type(value), date):
-                return "datetime'%s'" % value
+                return f"datetime'{value}'"
             if isinstance(value, bool):
                 return str(value).lower()
-            return "'%s'" % value
+            return f"'{value}'"
 
         if "raw_filter" in kwargs:
             filters.append(kwargs["raw_filter"])
@@ -205,19 +203,15 @@ class Manager:
             ]:
                 operator = "eq"
                 for op in ["lt", "gt"]:
-                    if k.endswith("__%s" % op):
+                    if k.endswith(f"__{op}"):
                         k = k[:-4]
                         operator = op
-                if not isinstance(v, (list, tuple)):
+                if not isinstance(v, list | tuple):
                     v = [v]
-                filters.append(
-                    " or ".join("%s %s %s" % (k, operator, build_value(v_)) for v_ in v)
-                )
+                filters.append(" or ".join(f"{k} {operator} {build_value(v_)}" for v_ in v))
 
         if filters:
-            request_kwargs["params"]["$filter"] = " and ".join(
-                "(%s)" % f for f in filters
-            )
+            request_kwargs["params"]["$filter"] = " and ".join(f"({f})" for f in filters)
 
         if "orderby" in kwargs:
             request_kwargs["params"]["$orderby"] = kwargs["orderby"]
@@ -225,10 +219,10 @@ class Manager:
         page_size = DEFAULT_PAGE_SIZE
         if "limit" in kwargs:
             page_size = int(kwargs["limit"])
-            request_kwargs["params"]["$top"] = page_size
+            request_kwargs["params"]["$top"] = page_size  # type: ignore[assignment]
 
         if "page" in kwargs:
-            request_kwargs["params"]["$skip"] = (int(kwargs["page"]) - 1) * page_size
+            request_kwargs["params"]["$skip"] = (int(kwargs["page"]) - 1) * page_size  # type: ignore[assignment]
 
         if "format" in kwargs:
             request_kwargs["params"]["format"] = kwargs["format"]
@@ -245,22 +239,16 @@ class Manager:
 
         return request_kwargs
 
-    def __repr__(self):
-        def print_method(name, args):
-            return "%s(%s)" % (name, ", ".join(args))
+    def __repr__(self) -> str:
+        def _get_signature(name: str, kwargs: list[str]) -> str:
+            return f"{name}({', '.join(kwargs)})"
 
-        formatstr = "%%%is - %%s" % max(
-            len(print_method(k, v["kwargs"])) for k, v in self.method_details.items()
+        def _print_method(name: str, kwargs: list[str], hint: str, offset: int) -> str:
+            return f"{_get_signature(name, kwargs):>{offset}} - {hint}"
+
+        offset = max(len(_get_signature(k, v["kwargs"])) for k, v in self.method_details.items())
+        options = "\n    ".join(
+            _print_method(k, v["kwargs"], v["hint"], offset)
+            for k, v in sorted(self.method_details.items())
         )
-        return "%s%s:\n    %s" % (
-            self.name,
-            self.__class__.__name__,
-            "\n    ".join(
-                formatstr
-                % (
-                    print_method(k, v["kwargs"]),
-                    v["hint"],
-                )
-                for k, v in sorted(self.method_details.items())
-            ),
-        )
+        return f"{self.name}{self.__class__.__name__}:\n    {options}"
