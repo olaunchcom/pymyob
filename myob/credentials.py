@@ -41,7 +41,7 @@ class PartnerCredentials:
         url, _ = self._oauth.authorization_url(
             MYOB_PARTNER_BASE_URL + AUTHORIZE_URL, state=state
         )
-        self.url = url + "&scope=CompanyFile"
+        self.url = url + f"&scope={scope or 'CompanyFile'}"
 
     # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
     # protected endpoint to ensure they are valid. If not, raise appropriate error.
