@@ -200,6 +200,7 @@ class Manager:
                 "templatename",
                 "timeout",
                 "raw_filter",
+                "$expand",
             ]:
                 operator = "eq"
                 for op in ["lt", "gt"]:
@@ -215,6 +216,9 @@ class Manager:
 
         if "orderby" in kwargs:
             request_kwargs["params"]["$orderby"] = kwargs["orderby"]
+
+        if "$expand" in kwargs:
+            request_kwargs["params"]["$expand"] = kwargs["$expand"]
 
         page_size = DEFAULT_PAGE_SIZE
         if "limit" in kwargs:
