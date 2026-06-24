@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime, timedelta
 from typing import Any
+from urllib.parse import quote
 
 from requests_oauthlib import OAuth2Session
 
@@ -20,7 +21,7 @@ class PartnerCredentials:
         oauth_token: str | None = None,
         refresh_token: str | None = None,
         oauth_expires_at: datetime | None = None,
-        scope: None = None,  # TODO: Review if used.
+        scope: str | None = None,
         state: str | None = None,
     ) -> None:
         self.consumer_key = consumer_key
@@ -39,7 +40,10 @@ class PartnerCredentials:
 
         self._oauth = OAuth2Session(consumer_key, redirect_uri=callback_uri)
         url, _ = self._oauth.authorization_url(MYOB_PARTNER_BASE_URL + AUTHORIZE_URL, state=state)
-        self.url = url + "&scope=CompanyFile"
+        # MYOB now requires an explicit scope. Honour the supplied scope (space-separated
+        # for the new granular data scopes), URL-encoding it, and fall back to the legacy
+        # "CompanyFile" scope when none is provided.
+        self.url = url + "&scope=" + quote(scope or "CompanyFile", safe="")
 
     # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
     # protected endpoint to ensure they are valid. If not, raise appropriate error.
