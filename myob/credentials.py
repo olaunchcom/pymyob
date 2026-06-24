@@ -1,5 +1,6 @@
 import base64
 import datetime
+from urllib.parse import quote
 
 from requests_oauthlib import OAuth2Session
 
@@ -41,7 +42,9 @@ class PartnerCredentials:
         url, _ = self._oauth.authorization_url(
             MYOB_PARTNER_BASE_URL + AUTHORIZE_URL, state=state
         )
-        self.url = url + f"&scope={scope or 'CompanyFile'}"
+        # Granular data scopes are space separated and must be URL-encoded in the
+        # authorize URL; fall back to the legacy "CompanyFile" scope when none given.
+        self.url = url + "&scope=" + quote(scope or "CompanyFile", safe="")
 
     # TODO: Add `verify` kwarg here, which will quickly throw the provided credentials at a
     # protected endpoint to ensure they are valid. If not, raise appropriate error.
